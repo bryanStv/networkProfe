@@ -11,6 +11,7 @@ public class Network {
         int option;
         String host = "jdbc:sqlite:src/main/resources/network";
         con = java.sql.DriverManager.getConnection(host);
+        banner();
         while(true){
             printMenu();
             option = getOption();
@@ -106,9 +107,7 @@ public class Network {
     }
 
     private static void printPost(ResultSet rs) throws SQLException{
-
-            System.out.printf("ID: %d - text:%s - Likes: %d - Fecha: %s - Usuario: %s\n",rs.getInt("id"),rs.getString("text"),rs.getInt("likes"),rs.getString("date"),rs.getString("name"));
-
+        System.out.printf("ID: %d - text:%s - Likes: %d - Fecha: %s - Usuario: %s\n",rs.getInt("id"),rs.getString("text"),rs.getInt("likes"),rs.getString("date"),rs.getString("name"));
     }
 
     private static void allPost() throws SQLException {
@@ -126,26 +125,24 @@ public class Network {
     private static void myPost() throws SQLException{
         //Hacer connsulta
         PreparedStatement st = null;
-        String query = "SELECT * FROM post WHERE userID = ?";
+        String query = "select p.id,p.text,p.date ,p.likes,u.name from users u inner join post p on u.id = p.userID where u.id = ?;";
         st = con.prepareStatement(query);
         st.setInt(1,userID);
         ResultSet rs = st.executeQuery();
-        String user = String.format("select name from users inner join comments on users.id = comments.id where comments.id = %s;",rs.getInt("id"));
         while(rs.next()){
-            System.out.println(rs.getInt("id") + " - " + rs.getString("text"));
+            System.out.printf("ID: %d - text:%s - Likes: %d - Fecha: %s - Usuario: %s\n",rs.getInt("id"),rs.getString("text"),rs.getInt("likes"),rs.getString("date"),rs.getString("name"));
         }
     }
 
     private static void otherPost() throws SQLException{
         //Hacer connsulta
         PreparedStatement st = null;
-        String query = "SELECT * FROM post WHERE userID != ?";
+        String query = "select p.id,p.text,p.date ,p.likes,u.name from users u inner join post p on u.id = p.userID where u.id != ?;";
         st = con.prepareStatement(query);
         st.setInt(1,userID);
         ResultSet rs = st.executeQuery();
-        String user = String.format("select name from users inner join comments on users.id = comments.id where comments.id = %s;",rs.getInt("id"));
         while(rs.next()){
-            System.out.println(rs.getInt("id") + " - " + rs.getString("text") + " - Likes: " +rs.getInt("likes"));
+            System.out.printf("ID: %d - text:%s - Likes: %d - Fecha: %s - Usuario: %s\n",rs.getInt("id"),rs.getString("text"),rs.getInt("likes"),rs.getString("date"),rs.getString("name"));
         }
     }
 
@@ -205,6 +202,22 @@ public class Network {
         st = con.prepareStatement(query);
         st.setInt(1,postId);
         st.executeUpdate();
+    }
+
+    private static void banner(){
+        String ANSI_CYAN = "\u001B[36m";
+        String ANSI_RESET = "\u001B[0m";
+        System.out.println(ANSI_CYAN+" ███████████ █████   ███   █████ █████ ███████████ ███████████ ██████████ ███████████       ████████        █████   \n" +
+                "░█░░░███░░░█░░███   ░███  ░░███ ░░███ ░█░░░███░░░█░█░░░███░░░█░░███░░░░░█░░███░░░░░███     ███░░░░███     ███░░░███ \n" +
+                "░   ░███  ░  ░███   ░███   ░███  ░███ ░   ░███  ░ ░   ░███  ░  ░███  █ ░  ░███    ░███    ░░░    ░███    ███   ░░███\n" +
+                "    ░███     ░███   ░███   ░███  ░███     ░███        ░███     ░██████    ░██████████        ███████    ░███    ░███\n" +
+                "    ░███     ░░███  █████  ███   ░███     ░███        ░███     ░███░░█    ░███░░░░░███      ███░░░░     ░███    ░███\n" +
+                "    ░███      ░░░█████░█████░    ░███     ░███        ░███     ░███ ░   █ ░███    ░███     ███      █   ░░███   ███ \n" +
+                "    █████       ░░███ ░░███      █████    █████       █████    ██████████ █████   █████   ░██████████ ██ ░░░█████░  \n" +
+                "   ░░░░░         ░░░   ░░░      ░░░░░    ░░░░░       ░░░░░    ░░░░░░░░░░ ░░░░░   ░░░░░    ░░░░░░░░░░ ░░    ░░░░░░   \n" +
+                "                                                                                                                    \n" +
+                "                                                                                                                    \n" +
+                "                                                                                                                    "+ANSI_RESET);
     }
 
 }

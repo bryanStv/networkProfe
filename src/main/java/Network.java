@@ -35,6 +35,12 @@ public class Network {
                     case 2:
                         newPost();
                         break;
+                    case 3:
+                        newComment();
+                        break;
+                    case 4:
+                        addLike();
+                        break;
                     case 5:
                         otherPost();
                         break;
@@ -99,14 +105,21 @@ public class Network {
         currentScreen = 0;
     }
 
+    private static void printPost(ResultSet rs) throws SQLException{
+
+            System.out.printf("ID: %d - text:%s - Likes: %d - Fecha: %s - Usuario: %s\n",rs.getInt("id"),rs.getString("text"),rs.getInt("likes"),rs.getString("date"),rs.getString("name"));
+
+    }
+
     private static void allPost() throws SQLException {
         //Hacer connsulta
         PreparedStatement st = null;
-        String query = "SELECT * FROM post";
+        //String query = "SELECT * FROM post";
+        String query = "select *  from users u inner join post p on u.id = p.userID;";
         st = con.prepareStatement(query);
         ResultSet rs = st.executeQuery();
         while(rs.next()){
-            System.out.println(rs.getInt("id") + " - " + rs.getString("text"));
+            printPost(rs);
         }
     }
 
@@ -117,6 +130,7 @@ public class Network {
         st = con.prepareStatement(query);
         st.setInt(1,userID);
         ResultSet rs = st.executeQuery();
+        String user = String.format("select name from users inner join comments on users.id = comments.id where comments.id = %s;",rs.getInt("id"));
         while(rs.next()){
             System.out.println(rs.getInt("id") + " - " + rs.getString("text"));
         }
@@ -129,8 +143,9 @@ public class Network {
         st = con.prepareStatement(query);
         st.setInt(1,userID);
         ResultSet rs = st.executeQuery();
+        String user = String.format("select name from users inner join comments on users.id = comments.id where comments.id = %s;",rs.getInt("id"));
         while(rs.next()){
-            System.out.println(rs.getInt("id") + " - " + rs.getString("text"));
+            System.out.println(rs.getInt("id") + " - " + rs.getString("text") + " - Likes: " +rs.getInt("likes"));
         }
     }
 
@@ -161,6 +176,34 @@ public class Network {
         st.setString(2,date.toString());
         st.setInt(3,0);
         st.setString(4,idUser);
+        st.executeUpdate();
+    }
+
+    private static void newComment() throws SQLException{
+        Scanner tc = new Scanner(System.in);
+        otherPost();
+        PreparedStatement st = null;
+        System.out.print("Enter Post: ");
+        int postId = Integer.parseInt(tc.nextLine());
+        System.out.print("Enter comment: ");
+        String comment = tc.nextLine();
+        String idUser = ""+userID;
+        String query = "INSERT INTO comments(text,userID,postID) VALUES(?,?,?)";
+        st = con.prepareStatement(query);
+        st.setString(1,comment);
+        st.setString(2,idUser);
+        st.setInt(3,postId);
+        st.executeUpdate();
+    }
+    private static void addLike() throws SQLException {
+        Scanner tc = new Scanner(System.in);
+        otherPost();
+        PreparedStatement st = null;
+        System.out.print("Enter PostID: ");
+        int postId = tc.nextInt();
+        String query = "UPDATE post SET likes = likes+1 WHERE id = ?";
+        st = con.prepareStatement(query);
+        st.setInt(1,postId);
         st.executeUpdate();
     }
 
